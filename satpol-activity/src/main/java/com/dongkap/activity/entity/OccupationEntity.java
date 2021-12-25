@@ -1,18 +1,13 @@
 package com.dongkap.activity.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.dongkap.common.utils.SchemaDatabase;
@@ -26,11 +21,11 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false, exclude={"employees"})
-@ToString(exclude={"employees"})
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "sec_occupation", schema = SchemaDatabase.ACTIVITY)
-public class OccupationEntity extends BaseAuditEntity {
+public class OccupationEntity implements Serializable {
 
 	/**
 	 * 
@@ -48,9 +43,5 @@ public class OccupationEntity extends BaseAuditEntity {
 
 	@Column(name = "occupation_name")
 	private String name;
-
-	@ManyToMany(mappedBy = "occupation", targetEntity = EmployeeEntity.class, fetch = FetchType.LAZY)
-	@Fetch(FetchMode.SELECT)
-	private Set<EmployeeEntity> employees = new HashSet<EmployeeEntity>();
 
 }

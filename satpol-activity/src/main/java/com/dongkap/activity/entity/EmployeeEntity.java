@@ -1,5 +1,7 @@
 package com.dongkap.activity.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,7 +28,7 @@ import lombok.ToString;
 @ToString(exclude={"occupation"})
 @Entity
 @Table(name = "sec_employee", schema = SchemaDatabase.ACTIVITY)
-public class EmployeeEntity extends BaseAuditEntity {
+public class EmployeeEntity implements Serializable {
 
 	/**
 	 * 
