@@ -50,6 +50,9 @@ public class TimesheetEntity extends BaseApprovalEntity {
 	@Column(name = "checkout_time")
 	private Date checkoutTime;
 
+	@Column(name = "total_hours")
+	private String totalHours;
+
 	@OneToOne(targetEntity = AssignmentEntity.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "assignment_uuid", nullable = false)
 	private AssignmentEntity assignment;
