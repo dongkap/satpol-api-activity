@@ -5,13 +5,10 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 import com.dongkap.common.utils.SchemaDatabase;
 
@@ -36,8 +33,6 @@ public class EmployeeEntity implements Serializable {
 	private static final long serialVersionUID = -2442773369159964802L;
 	
 	@Id
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
-	@GeneratedValue(generator = "uuid")
     @Column(name = "employee_uuid", nullable = false, unique=true)
 	private String id;
 
@@ -46,6 +41,9 @@ public class EmployeeEntity implements Serializable {
 	
 	@Column(name = "username", nullable = false, unique=true)
 	private String username;
+
+	@Column(name = "is_active", nullable = false)
+	private Boolean active = true;
 
 	@OneToOne(targetEntity = OccupationEntity.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "occupation_uuid", nullable = false)

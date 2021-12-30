@@ -5,13 +5,10 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 import com.dongkap.common.utils.SchemaDatabase;
 
@@ -36,13 +33,14 @@ public class AssetEntity implements Serializable {
 	private static final long serialVersionUID = -1932022761237540822L;
 
 	@Id
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
-	@GeneratedValue(generator = "uuid")
 	@Column(name = "asset_uuid", nullable = false, unique = true)
 	private String id;
 
 	@Column(name = "asset_name", nullable = false)
 	private String assetName;
+
+	@Column(name = "is_active", nullable = false)
+	private Boolean active = true;
 
 	@OneToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "bp_uuid", nullable = false)

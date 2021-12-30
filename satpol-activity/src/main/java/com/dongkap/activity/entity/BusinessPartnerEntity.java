@@ -7,14 +7,12 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.GenericGenerator;
 
 import com.dongkap.common.utils.SchemaDatabase;
 
@@ -39,25 +37,14 @@ public class BusinessPartnerEntity implements Serializable {
 	private static final long serialVersionUID = -1932022761237540822L;
 
 	@Id
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
-	@GeneratedValue(generator = "uuid")
 	@Column(name = "bp_uuid", nullable = false, unique = true)
 	private String id;
 
 	@Column(name = "bp_name", nullable = false)
 	private String bpName;
 
-	@Column(name = "email")
-	private String email;
-
-	@Column(name = "address")
-	private String address;
-
-	@Column(name = "telp_number")
-	private String telpNumber;
-
-	@Column(name = "fax_number")
-	private String faxNumber;
+	@Column(name = "is_active", nullable = false)
+	private Boolean active = true;
 
 	@ManyToMany(mappedBy = "businessPartner", targetEntity = AssignmentGroupEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
