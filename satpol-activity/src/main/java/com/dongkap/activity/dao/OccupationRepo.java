@@ -7,4 +7,6 @@ import com.dongkap.activity.entity.OccupationEntity;
 
 public interface OccupationRepo extends JpaRepository<OccupationEntity, String>, JpaSpecificationExecutor<OccupationEntity> {
 	
+	OccupationEntity findByCode(String code);
+
 }

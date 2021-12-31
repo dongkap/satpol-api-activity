@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dongkap.activity.dao.OccupationRepo;
@@ -33,43 +34,60 @@ public class OccupationListenerService extends CommonStreamListener<CommonStream
 	
 	@Override
     @SneakyThrows
-    @Transactional
+	@Transactional(noRollbackFor = { ConstraintViolationException.class }, propagation = Propagation.REQUIRES_NEW)
 	public void onMessage(ObjectRecord<String, CommonStreamMessageDto> message) {
         String stream = message.getStream();
         RecordId id = message.getId();
 		LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
-        CommonStreamMessageDto value = message.getValue();
-        if(value != null) {
-        	for(Object data: value.getDatas()) {
-	        	if(data instanceof OccupationDto) {
-	        		OccupationDto request = (OccupationDto) data;
-	        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
-	        			this.persist(request);
-	        		}
-	        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.DELETE_DATA)) {
-		        		this.delete(request);
-	        		}
-	        	}
+		try {
+	        CommonStreamMessageDto value = message.getValue();
+	        if(value != null) {
+	        	for(Object data: value.getDatas()) {
+		        	if(data instanceof OccupationDto) {
+		        		OccupationDto request = (OccupationDto) data;
+		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
+		        			this.persist(request);
+		        		}
+		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.DELETE_DATA)) {
+			        		this.delete(request);
+		        		}
+		        	}
+		        }
 	        }
-        }
+		} catch (Exception e) {
+			LOGGER.warn("Stream On Message : {}", e.getMessage());
+		}
 	}
 	
 	public void persist(OccupationDto request) {
-		OccupationEntity occupation = new OccupationEntity(); 
-		occupation.setId(request.getId());
-		occupation.setCode(request.getCode());
-		occupation.setName(request.getName());
 		try {
+			OccupationEntity occupation = occupationRepo.findByCode(request.getCode());
+			if(occupation != null) {
+				if(!occupation.getId().equals(request.getId())) {
+					return;
+				}
+			} else {
+				occupation = new OccupationEntity();	
+			}
+			occupation.setId(request.getId());
+			occupation.setCode(request.getCode());
+			occupation.setName(request.getName());
 			occupationRepo.saveAndFlush(occupation);
+		} catch (DataIntegrityViolationException e) {
+			LOGGER.warn("Stream Persist : {}", e.getMessage());
+		} catch (ConstraintViolationException e) {
+			LOGGER.warn("Stream Persist : {}", e.getMessage());
 		} catch (Exception e) {
 			LOGGER.warn("Stream Persist : {}", e.getMessage());
 		}
 	}
 	
 	public void delete(OccupationDto request) {
-		OccupationEntity occupation = occupationRepo.findById(request.getId()).orElse(null);
 		try {
-			occupationRepo.delete(occupation);
+			OccupationEntity occupation = occupationRepo.findByCode(request.getCode());
+			if(occupation != null) {
+				occupationRepo.delete(occupation);	
+			}
 		} catch (DataIntegrityViolationException e) {
 			LOGGER.warn("Stream Delete : {}", e.getMessage());
 		} catch (ConstraintViolationException e) {
