@@ -33,10 +33,10 @@ public class ParameterListenerService extends CommonStreamListener<CommonStreamM
     @SneakyThrows
     @Transactional
 	public void onMessage(ObjectRecord<String, CommonStreamMessageDto> message) {
-        String stream = message.getStream();
-        RecordId id = message.getId();
-		LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
 		try {
+	        String stream = message.getStream();
+	        RecordId id = message.getId();
+			LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
 	        CommonStreamMessageDto value = message.getValue();
 	        if(value != null) {
 	        	for(Object data: value.getDatas()) {

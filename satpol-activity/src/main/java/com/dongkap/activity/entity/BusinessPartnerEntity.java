@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -50,7 +51,7 @@ public class BusinessPartnerEntity implements Serializable {
 	@Fetch(FetchMode.SELECT)
 	private Set<AssignmentGroupEntity> b2bSet = new HashSet<AssignmentGroupEntity>();
 
-	@ManyToMany(mappedBy = "businessPartner", targetEntity = AssetEntity.class, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "businessPartner", targetEntity = AssetEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
 	private Set<AssetEntity> assets = new HashSet<AssetEntity>();
 

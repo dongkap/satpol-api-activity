@@ -2,12 +2,13 @@ package com.dongkap.activity.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.dongkap.common.utils.SchemaDatabase;
@@ -42,11 +43,11 @@ public class AssetEntity implements Serializable {
 	@Column(name = "is_active", nullable = false)
 	private Boolean active = true;
 
-	@OneToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "bp_uuid", nullable = false)
+	@ManyToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "bp_uuid", nullable = true)
 	private BusinessPartnerEntity businessPartner;
 
-	@OneToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "corporate_uuid", nullable = false)
 	private CorporateEntity corporate;
 

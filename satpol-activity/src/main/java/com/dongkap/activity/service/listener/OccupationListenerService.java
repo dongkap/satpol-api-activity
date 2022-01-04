@@ -36,10 +36,10 @@ public class OccupationListenerService extends CommonStreamListener<CommonStream
     @SneakyThrows
 	@Transactional(noRollbackFor = { ConstraintViolationException.class }, propagation = Propagation.REQUIRES_NEW)
 	public void onMessage(ObjectRecord<String, CommonStreamMessageDto> message) {
-        String stream = message.getStream();
-        RecordId id = message.getId();
-		LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
 		try {
+	        String stream = message.getStream();
+	        RecordId id = message.getId();
+			LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
 	        CommonStreamMessageDto value = message.getValue();
 	        if(value != null) {
 	        	for(Object data: value.getDatas()) {
@@ -91,6 +91,8 @@ public class OccupationListenerService extends CommonStreamListener<CommonStream
 		} catch (DataIntegrityViolationException e) {
 			LOGGER.warn("Stream Delete : {}", e.getMessage());
 		} catch (ConstraintViolationException e) {
+			LOGGER.warn("Stream Delete : {}", e.getMessage());
+		} catch (Exception e) {
 			LOGGER.warn("Stream Delete : {}", e.getMessage());
 		}
 	}

@@ -10,26 +10,38 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dongkap.activity.dao.AssetRepo;
+import com.dongkap.activity.dao.BusinessPartnerRepo;
 import com.dongkap.activity.dao.CorporateRepo;
+import com.dongkap.activity.entity.AssetEntity;
+import com.dongkap.activity.entity.BusinessPartnerEntity;
 import com.dongkap.activity.entity.CorporateEntity;
+import com.dongkap.common.exceptions.SystemErrorException;
 import com.dongkap.common.stream.CommonStreamListener;
+import com.dongkap.common.utils.ErrorCode;
 import com.dongkap.common.utils.ParameterStatic;
 import com.dongkap.common.utils.StreamKeyStatic;
 import com.dongkap.dto.common.CommonStreamMessageDto;
-import com.dongkap.dto.security.CorporateDto;
+import com.dongkap.dto.master.AssetDto;
 
 import lombok.SneakyThrows;
 
 @Service
-public class CorporateListenerService extends CommonStreamListener<CommonStreamMessageDto> {
+public class AssetListenerService extends CommonStreamListener<CommonStreamMessageDto> {
+
+	@Autowired
+	private AssetRepo assetRepo;
+
+	@Autowired
+	private BusinessPartnerRepo businessPartnerRepo;
 
 	@Autowired
 	private CorporateRepo corporateRepo;
 
-    public CorporateListenerService(
+    public AssetListenerService(
     		@Value("${spring.application.name}") String appName,
     		@Value("${spring.application.name}") String groupId) {
-		super(appName, groupId, StreamKeyStatic.CORPORATE, CommonStreamMessageDto.class);
+		super(appName, groupId, StreamKeyStatic.ASSET, CommonStreamMessageDto.class);
 	}
 	
 	@Override
@@ -43,8 +55,8 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
 	        CommonStreamMessageDto value = message.getValue();
 	        if(value != null) {
 	        	for(Object data: value.getDatas()) {
-		        	if(data instanceof CorporateDto) {
-		        		CorporateDto request = (CorporateDto) data;
+		        	if(data instanceof AssetDto) {
+		        		AssetDto request = (AssetDto) data;
 		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
 		        			this.persist(request);
 		        		}
@@ -53,26 +65,44 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
 		        		}
 		        	}
 		        }
-	        }			
+	        }
 		} catch (Exception e) {
 			LOGGER.warn("Stream On Message : {}", e.getMessage());
 		}
 	}
 	
-	public void persist(CorporateDto request) {
+	public void persist(AssetDto request) {
 		try {
-			CorporateEntity corporate = corporateRepo.findByCorporateCode(request.getCorporateCode());
-			if(corporate != null) {
-				if(!corporate.getId().equals(request.getId())) {
-					corporateRepo.delete(corporate);
-				}
-			} else {
-				corporate = new CorporateEntity();	
+			AssetEntity asset = assetRepo.findById(request.getId()).orElse(null);
+			if(asset == null) {
+				asset = new AssetEntity();	
 			}
-			corporate.setId(request.getId());
-			corporate.setCorporateCode(request.getCorporateCode());
-			corporate.setCorporateName(request.getCorporateName());
-    		corporateRepo.saveAndFlush(corporate);
+			asset.setId(request.getId());
+			asset.setAssetName(request.getAssetName());
+			if(request.getCorporate() != null) {
+				CorporateEntity corporate = corporateRepo.findById(request.getCorporate().getId()).orElse(null);
+				if(corporate == null) {
+					corporate = new CorporateEntity();
+					corporate.setId(request.getCorporate().getId());
+					corporate.setCorporateCode(request.getCorporate().getCorporateCode());
+					corporate.setCorporateName(request.getCorporate().getCorporateName());
+					corporate.getAssets().add(asset);
+				}
+				asset.setCorporate(corporate);
+			} else {
+				throw new SystemErrorException(ErrorCode.ERR_SYS0415);
+			}
+			if(request.getBusinessPartner() != null) {
+				BusinessPartnerEntity businessPartner = businessPartnerRepo.findById(request.getBusinessPartner().getId()).orElse(null);
+				if(businessPartner == null) {
+					businessPartner = new BusinessPartnerEntity();
+					businessPartner.setId(request.getBusinessPartner().getId());
+					businessPartner.setBpName(request.getBusinessPartner().getBpName());
+					businessPartner.getAssets().add(asset);
+				} 
+				asset.setBusinessPartner(businessPartner);
+			}
+			assetRepo.saveAndFlush(asset);
 		} catch (DataIntegrityViolationException e) {
 			LOGGER.warn("Stream Persist : {}", e.getMessage());
 		} catch (ConstraintViolationException e) {
@@ -81,19 +111,16 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
 			LOGGER.warn("Stream Persist : {}", e.getMessage());
 		}
 	}
-
-	public void delete(CorporateDto request) {
+	
+	public void delete(AssetDto request) {
 		try {
-			CorporateEntity corporate = corporateRepo.findByCorporateCode(request.getCorporateCode());
-			if(corporate != null) {
-				corporateRepo.delete(corporate);
+			AssetEntity asset = assetRepo.findById(request.getId()).orElse(null);
+			if(asset != null) {
+				asset.setActive(false);
+				assetRepo.saveAndFlush(asset);
 			}
-		} catch (DataIntegrityViolationException e) {
-			LOGGER.warn("Stream Delete : {}", e.getMessage());
-		} catch (ConstraintViolationException e) {
-			LOGGER.warn("Stream Delete : {}", e.getMessage());
 		} catch (Exception e) {
-			LOGGER.warn("Stream Delete : {}", e.getMessage());
+			LOGGER.warn("Stream Soft Delete : {}", e.getMessage());
 		}
 	}
 }
