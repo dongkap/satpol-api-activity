@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dongkap.activity.dao.ParameterI18nRepo;
+import com.dongkap.activity.dao.ParameterRepo;
+import com.dongkap.activity.entity.ParameterEntity;
 import com.dongkap.activity.entity.ParameterI18nEntity;
 import com.dongkap.common.stream.CommonStreamListener;
 import com.dongkap.common.utils.ParameterStatic;
@@ -22,6 +24,9 @@ public class ParameterListenerService extends CommonStreamListener<CommonStreamM
 
 	@Autowired
 	private ParameterI18nRepo parameterI18nRepo;
+
+	@Autowired
+	private ParameterRepo parameterRepo;
 
     public ParameterListenerService(
     		@Value("${spring.application.name}") String appName,
@@ -42,7 +47,7 @@ public class ParameterListenerService extends CommonStreamListener<CommonStreamM
 	        	for(Object data: value.getDatas()) {
 		        	if(data instanceof ParameterI18nDto) {
 		        		ParameterI18nDto param = (ParameterI18nDto)data;
-		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.UPDATE_DATA)) {
+		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
 			        		this.update(param);
 		        		}
 		        	}
@@ -55,13 +60,24 @@ public class ParameterListenerService extends CommonStreamListener<CommonStreamM
 	
 	public void update(ParameterI18nDto request) {
 		try {
-			ParameterI18nEntity parameterI18n = parameterI18nRepo.findById(request.getParameterI18nUUID()).orElse(null);
-			if(parameterI18n != null) {
-	    		parameterI18n.setParameterValue(request.getParameterValue());
-	    		parameterI18nRepo.save(parameterI18n);
+			ParameterI18nEntity parameterI18n = parameterI18nRepo.findById(request.getParameterI18nId()).orElse(null);
+			if(parameterI18n == null) {
+				parameterI18n = new ParameterI18nEntity();
+				parameterI18n.setId(request.getParameterI18nId());
+				parameterI18n.setLocaleCode(request.getLocale());
+				ParameterEntity parameter = parameterRepo.findByParameterCode(request.getParameterCode());
+				if(parameter == null) {
+					parameter = new ParameterEntity();
+					parameter.setId(request.getParameterId());
+					parameter.setParameterCode(request.getParameterCode());
+					parameter.getParameterI18n().add(parameterI18n);
+				}
+				parameterI18n.setParameter(parameter);
 			}
+    		parameterI18n.setParameterValue(request.getParameterValue());
+    		parameterI18nRepo.saveAndFlush(parameterI18n);
 		} catch (Exception e) {
 			LOGGER.warn("Stream Update : {}", e.getMessage());
-		}	
+		}
 	}
 }
