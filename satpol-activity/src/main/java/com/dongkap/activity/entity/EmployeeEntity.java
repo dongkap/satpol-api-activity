@@ -41,6 +41,9 @@ public class EmployeeEntity implements Serializable {
 	
 	@Column(name = "username", nullable = false, unique=true)
 	private String username;
+	
+	@Column(name = "fullname", nullable = false)
+	private String fullname;
 
 	@Column(name = "is_active", nullable = false)
 	private Boolean active = true;
