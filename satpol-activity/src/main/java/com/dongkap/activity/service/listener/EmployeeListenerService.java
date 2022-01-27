@@ -49,7 +49,8 @@ public class EmployeeListenerService extends CommonStreamListener<CommonStreamMe
 	        	for(Object data: value.getDatas()) {
 		        	if(data instanceof EmployeeDto) {
 		        		EmployeeDto request = (EmployeeDto) data;
-		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
+		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.INSERT_DATA) ||
+		        			value.getStatus().equalsIgnoreCase(ParameterStatic.UPDATE_DATA)) {
 		        			this.persist(request);
 		        		}
 		        	}
