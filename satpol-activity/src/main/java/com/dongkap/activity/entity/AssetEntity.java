@@ -43,11 +43,11 @@ public class AssetEntity implements Serializable {
 	@Column(name = "is_active", nullable = false)
 	private Boolean active = true;
 
-	@ManyToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
 	@JoinColumn(name = "bp_uuid", nullable = true)
 	private BusinessPartnerEntity businessPartner;
 
-	@ManyToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
 	@JoinColumn(name = "corporate_uuid", nullable = false)
 	private CorporateEntity corporate;
 
