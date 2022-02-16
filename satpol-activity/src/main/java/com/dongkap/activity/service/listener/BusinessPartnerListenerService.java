@@ -60,6 +60,7 @@ public class BusinessPartnerListenerService extends CommonStreamListener<CommonS
 			BusinessPartnerEntity businessPartner = new BusinessPartnerEntity(); 
 			businessPartner.setId(request.getBusinessPartner().getId());
 			businessPartner.setBpName(request.getBusinessPartner().getBpName());
+			businessPartner.setCorporateCode(request.getCorporate().getCorporateCode());
     		businessPartnerRepo.saveAndFlush(businessPartner);
 		} catch (DataIntegrityViolationException e) {
 			LOGGER.warn("Stream Persist : {}", e.getMessage());

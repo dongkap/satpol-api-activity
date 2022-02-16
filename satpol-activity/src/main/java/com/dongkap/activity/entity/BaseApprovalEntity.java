@@ -29,10 +29,10 @@ public class BaseApprovalEntity implements Serializable {
 	private static final long serialVersionUID = -810070551326900243L;
 
 	@Column(name = "auto_approved", nullable = false)
-    protected boolean autoApproved = true;
+    protected Boolean autoApproved = true;
 
 	@Column(name = "is_approved", nullable = false)
-    protected boolean approved = true;
+    protected Boolean approved = true;
 
 	@Temporal(TemporalType.TIMESTAMP)
     @Column(name="approved_date")

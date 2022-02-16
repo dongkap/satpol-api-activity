@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.dongkap.common.utils.SchemaDatabase;
@@ -48,7 +48,7 @@ public class EmployeeEntity implements Serializable {
 	@Column(name = "is_active", nullable = false)
 	private Boolean active = true;
 
-	@OneToOne(targetEntity = OccupationEntity.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = OccupationEntity.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "occupation_uuid", nullable = false)
 	private OccupationEntity occupation;
 

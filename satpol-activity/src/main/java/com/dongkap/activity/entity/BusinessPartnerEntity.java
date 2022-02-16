@@ -8,8 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -26,8 +26,8 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false, exclude={"b2bSet", "assets"})
-@ToString(exclude={"b2bSet", "assets"})
+@EqualsAndHashCode(callSuper=false, exclude={"assignmentGroup", "assets"})
+@ToString(exclude={"assignmentGroup", "assets"})
 @Entity
 @Table(name = "mst_business_partner", schema = SchemaDatabase.ACTIVITY)
 public class BusinessPartnerEntity implements Serializable {
@@ -44,12 +44,15 @@ public class BusinessPartnerEntity implements Serializable {
 	@Column(name = "bp_name", nullable = false)
 	private String bpName;
 
+	@Column(name = "corporate_code", nullable = false)
+	private String corporateCode;
+
 	@Column(name = "is_active", nullable = false)
 	private Boolean active = true;
 
-	@ManyToMany(mappedBy = "businessPartner", targetEntity = AssignmentGroupEntity.class, fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "businessPartner", targetEntity = AssignmentGroupEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
-	private Set<AssignmentGroupEntity> b2bSet = new HashSet<AssignmentGroupEntity>();
+	private AssignmentGroupEntity assignmentGroup;
 
 	@OneToMany(mappedBy = "businessPartner", targetEntity = AssetEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
