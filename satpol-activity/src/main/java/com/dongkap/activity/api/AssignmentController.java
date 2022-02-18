@@ -50,8 +50,7 @@ public class AssignmentController extends BaseControllerException {
 			 @RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale,
 			@RequestBody(required = true) AssignmentRequestDto data) throws Exception {
 		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
-		this.assignmentService.postAssignment(additionalInfo, data);
-		return new ResponseEntity<ApiBaseResponse>(new ApiBaseResponse(), HttpStatus.OK);
+		return new ResponseEntity<ApiBaseResponse>(this.assignmentService.postAssignment(additionalInfo, data, locale), HttpStatus.OK);
 	}
 
 	@ResponseSuccess(SuccessCode.OK_DELETED)
